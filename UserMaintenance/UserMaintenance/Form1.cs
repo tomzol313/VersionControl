@@ -24,6 +24,7 @@ namespace UserMaintenance
             listBox1.ValueMember = "ID";
             listBox1.DisplayMember = "FullName";
             button2.Text = Resource1.File;
+            button3.Text = Resource1.Delete;
             
             var u = new User()
             {
@@ -52,6 +53,12 @@ namespace UserMaintenance
 
                 }
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            User user = (User)listBox1.SelectedItem;
+            users.Remove(user);
         }
     }
 }
