@@ -44,7 +44,7 @@ namespace week04
                 xlWB = xlApp.Workbooks.Add(Missing.Value);
                 xlSheet = xlWB.ActiveSheet;
 
-                //CreateTable();
+                CreateTable();
 
                 xlApp.Visible = true;
                 xlApp.UserControl = true;
@@ -90,13 +90,6 @@ namespace week04
                 values[counter, 1] = f.Vendor;
                 values[counter, 2] = f.Side;
                 values[counter, 3] = f.District;
-                values[counter, 4] = f.Elevator;
-                values[counter, 5] = f.NumberOfRooms;
-                values[counter, 6] = f.FloorArea;
-                values[counter, 7] = f.Price;
-                values[counter, 8] = "";
-                counter++;
-
                 if (f.Elevator == false)
                 {
                     values[counter, 4] = "Nincs";
@@ -105,12 +98,18 @@ namespace week04
                 {
                     values[counter, 4] = "Van";
                 }
+                values[counter, 5] = f.NumberOfRooms;
+                values[counter, 6] = f.FloorArea;
+                values[counter, 7] = f.Price;
+                values[counter, 8] = "="+GetCell(counter+2,7)+"/"+GetCell(counter+2,6);
+                counter++;
 
                 xlSheet.get_Range(
-                GetCell(2, 1),
-                GetCell(1 + values.GetLength(0), values.GetLength(1))).Value2 = values;
+                                GetCell(2, 1),
+                                GetCell(1 + values.GetLength(0), values.GetLength(1))).Value2 = values;
+            }
 
-                int lastRowID = xlSheet.UsedRange.Rows.Count;
+            int lastRowID = xlSheet.UsedRange.Rows.Count;
 
                 Excel.Range headerRange = xlSheet.get_Range(GetCell(1, 1), GetCell(1, headers.Length));
                 headerRange.Font.Bold = true;
@@ -130,8 +129,7 @@ namespace week04
 
                 Excel.Range lastColumnRange = xlSheet.get_Range(GetCell(1, headers.Length), GetCell(lastRowID, headers.Length));
                 lastColumnRange.Interior.Color = Color.LightGreen;
-                lastColumnRange.NumberFormat = Math.Round(lastColumnRange.Value, 2);
-            }
+                lastColumnRange.NumberFormat = "#,##0.00";
         }
 
         private string GetCell(int x, int y)
