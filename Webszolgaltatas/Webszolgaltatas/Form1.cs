@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,11 +18,39 @@ namespace Webszolgaltatas
     public partial class Form1 : Form
     {
         BindingList<RateData> Rates = new BindingList<RateData>();
-        
+        public string rslt;
+        BindingList<string> Currencies = new BindingList<string>();
+
         public Form1()
         {
             InitializeComponent();
+
+            var mnbService2 = new MNBArfolyamServiceSoapClient();
+            var request = new GetCurrenciesRequestBody();
+            var response = mnbService2.GetCurrencies(request);
+            var result = response.GetCurrenciesResult;
+
+            var xml = new XmlDocument();
+            xml.LoadXml(result);
+            foreach (XmlElement element in xml.DocumentElement)
+            {
+                for (int i = 0; i < element.ChildNodes.Count; i++)
+                {
+                    var childElement = (XmlElement)element.ChildNodes[i];
+                    Currencies.Add(childElement.InnerText);
+                }
+            }
             RefreshData();
+        }
+
+        private void RefreshData()
+        {
+            Rates.Clear();
+            dataGridView1.DataSource = Rates;
+            comboBox1.DataSource = Currencies;
+            GetExchangeRates();
+            GetXML();
+            GetDiagram();
         }
 
         private void GetExchangeRates()
@@ -38,14 +67,13 @@ namespace Webszolgaltatas
             var response = mnbService.GetExchangeRates(request);
             var result = response.GetExchangeRatesResult;
 
-            richTextBox1.Text = result;
-            richTextBox1.Hide();
+            rslt = result;
         }
 
         private void GetXML()
         {
             var xml = new XmlDocument();
-            xml.LoadXml(richTextBox1.Text);
+            xml.LoadXml(rslt);
 
             foreach (XmlElement element in xml.DocumentElement)
             {
@@ -53,6 +81,8 @@ namespace Webszolgaltatas
                 Rates.Add(rate);
                 rate.Date = DateTime.Parse(element.GetAttribute("date"));
                 var childElement = (XmlElement)element.ChildNodes[0];
+                if (childElement == null)
+                    continue;
                 rate.Currency = childElement.GetAttribute("curr");
                 var unit = decimal.Parse(childElement.GetAttribute("unit"));
                 var value = decimal.Parse(childElement.InnerText);
@@ -78,17 +108,6 @@ namespace Webszolgaltatas
             chartArea.AxisX.MajorGrid.Enabled = false;
             chartArea.AxisY.MajorGrid.Enabled = false;
             chartArea.AxisY.IsStartedFromZero = false;
-        }
-
-        private void RefreshData()
-        {
-            Rates.Clear();
-
-            GetExchangeRates();
-            GetXML();
-            GetDiagram();
-
-            dataGridView1.DataSource = Rates;
         }
 
         private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
