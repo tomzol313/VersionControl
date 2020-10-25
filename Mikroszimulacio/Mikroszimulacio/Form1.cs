@@ -18,18 +18,21 @@ namespace Mikroszimulacio
         List<BirthProbability> BirthProbabilities = new List<BirthProbability>();
         List<DeathProbability> DeathProbabilities = new List<DeathProbability>();
 
+        List<int> Male = new List<int>();
+        List<int> Female = new List<int>();
+
         Random rng = new Random(1234);
         public Form1()
         {
             InitializeComponent();
-
-            Population = GetPopulation(@"C:\Windows\Temp\nép.csv");
-            BirthProbabilities = GetBirthProbabilities(@"C:\Windows\Temp\születés.csv");
-            DeathProbabilities = GetDeathProbabilities(@"C:\Windows\Temp\halál.csv");
         }
 
         private void Simulation()
         {
+            Population = GetPopulation(textBox1.Text);
+            BirthProbabilities = GetBirthProbabilities(@"C:\Windows\Temp\születés.csv");
+            DeathProbabilities = GetDeathProbabilities(@"C:\Windows\Temp\halál.csv");
+
             for (int year = 2005; year <= numericUpDown1.Value; year++)
             {
                 for (int i = 0; i < Population.Count; i++)
@@ -40,9 +43,13 @@ namespace Mikroszimulacio
                 int nbrOfMales = (from x in Population
                                   where x.Gender == Gender.Male && x.IsAlive
                                   select x).Count();
+                Male.Add(nbrOfMales);
+
                 int nbrOfFemales = (from x in Population
                                     where x.Gender == Gender.Female && x.IsAlive
                                     select x).Count();
+                Female.Add(nbrOfFemales);
+
                 Console.WriteLine(
                     string.Format("Év:{0} Fiúk:{1} Lányok:{2}", year, nbrOfMales, nbrOfFemales));
             }
@@ -142,7 +149,11 @@ namespace Mikroszimulacio
 
         private void button2_Click(object sender, EventArgs e)
         {
+            Male.Clear();
+            Female.Clear();
+            richTextBox1.Clear();
             Simulation();
+            DisplayResults();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -151,6 +162,14 @@ namespace Mikroszimulacio
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 textBox1.Text = ofd.InitialDirectory + ofd.FileName;
+            }
+        }
+
+        private void DisplayResults()
+        {
+            for (int i = 2005; i <= numericUpDown1.Value; i++)
+            {
+                richTextBox1.AppendText("Szimulációs év:" + i + "\n \t Fiúk:" + Male[i - 2005] + "\n \t Lányok:" + Female[i - 2005] + "\n \n");
             }
         }
     }
