@@ -35,7 +35,7 @@ namespace UnitTestExample.Test
             TestCase("ABCD1234", false),
             TestCase("abcd1234", false),
             TestCase("abcd", false),
-            TestCase("AbcD1234", true),
+            TestCase("AbcD1234", true)
         ]
         public void TestValidatePassword(string password, bool expectedResult)
         {
@@ -43,7 +43,7 @@ namespace UnitTestExample.Test
             var accountController = new AccountController();
 
             // Act
-            var actualResult = accountController.ValidateEmail(password);
+            var actualResult = accountController.ValidatePassword(password);
 
             // Assert
             Assert.AreEqual(expectedResult, actualResult);
